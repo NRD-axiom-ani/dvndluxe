@@ -588,3 +588,122 @@ footer { border-top: 1px solid var(--color-border); background: var(--color-surf
   color: #9a9a9a;
   font-size: 14px;
 }
+/* PRODUCT DETAIL PAGE */
+.product-detail-page {
+  min-height: 100vh;
+  padding: 120px 24px 64px;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.product-detail-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.product-detail-images {
+  display: grid;
+  gap: 20px;
+}
+
+.product-detail-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 10px;
+}
+
+.product-detail-info {
+  position: sticky;
+  top: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.product-detail-label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.product-detail-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.4rem + 2vw, 3.5rem);
+  line-height: 0.95;
+  font-weight: 300;
+  color: var(--color-text);
+}
+
+.product-detail-price {
+  font-size: var(--text-lg);
+  color: var(--color-text);
+}
+
+.product-detail-desc {
+  font-size: var(--text-base);
+  line-height: 1.8;
+  color: var(--color-text-muted);
+  max-width: 52ch;
+}
+
+.product-detail-variants {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.variant-label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.variant-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.variant-options button,
+.product-detail-info .add-to-cart {
+  min-height: 44px;
+  padding: 12px 18px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+  cursor: pointer;
+}
+
+.variant-options button:hover,
+.product-detail-info .add-to-cart:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+@media (max-width: 900px) {
+  .product-detail-page {
+    padding: 100px 16px 48px;
+  }
+
+  .product-detail-inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .product-detail-info {
+    position: static;
+  }
+}
