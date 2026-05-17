@@ -1,5 +1,5 @@
-const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN as string;
-const token = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN as string;
+const domain = process.env.SHOPIFY_STORE_DOMAIN as string;
+const token = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN as string;
 const endpoint = `https://${domain}/api/2024-01/graphql.json`;
 
 async function shopifyFetch(query: string) {
@@ -11,7 +11,9 @@ async function shopifyFetch(query: string) {
         "X-Shopify-Storefront-Access-Token": token,
       },
       body: JSON.stringify({ query }),
+      cache: "no-store",
     });
+
     return res.json();
   } catch {
     return {};
@@ -58,6 +60,7 @@ export async function createCheckout(variantId: string): Promise<string | null> 
     return null;
   }
 }
+
 export async function getProductByHandle(handle: string) {
   try {
     const data = await shopifyFetch(`{
