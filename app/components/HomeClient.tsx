@@ -110,7 +110,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
   }, []);
 
   async function handleAddToCart(variantId: string) {
-   const { createCheckout } = await import("@/lib/shopify");
+    const { createCheckout } = await import("../../lib/shopify");
     const url = await createCheckout(variantId);
     if (url) window.open(url, "_blank");
   }
