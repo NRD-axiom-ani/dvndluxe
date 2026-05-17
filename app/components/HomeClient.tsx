@@ -318,8 +318,6 @@ export default function HomeClient({ products }: { products: Product[] }) {
                   <article
                     key={product.id}
                     className={`product-card reveal${i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : ""}`}
-                    onClick={() => router.push(`/products/${product.handle}`)}
-                    style={{ cursor: "pointer" }}
                   >
                     <div className="product-image">
                       {img && (
@@ -343,17 +341,25 @@ export default function HomeClient({ products }: { products: Product[] }) {
                         ₹{Math.round(price).toLocaleString("en-IN")}
                       </p>
 
-                      {variant && (
+                      <div style={{ display: "flex", gap: "12px", marginTop: "12px", flexWrap: "wrap" }}>
                         <button
                           className="add-to-cart"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToCart(variant.id);
-                          }}
+                          type="button"
+                          onClick={() => router.push(`/products/${product.handle}`)}
                         >
-                          Add to Cart →
+                          View Product
                         </button>
-                      )}
+
+                        {variant && (
+                          <button
+                            className="add-to-cart"
+                            type="button"
+                            onClick={() => handleAddToCart(variant.id)}
+                          >
+                            Add to Cart
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </article>
                 );

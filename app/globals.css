@@ -540,11 +540,6 @@ footer { border-top: 1px solid var(--color-border); background: var(--color-surf
   body { cursor: auto; }
   button { cursor: pointer; }
 }
-.product-link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
 .product-card {
   position: relative;
 }
@@ -572,4 +567,19 @@ footer { border-top: 1px solid var(--color-border); background: var(--color-surf
 .add-to-cart {
   position: relative;
   z-index: 4;
+}
+.product-card img {
+  pointer-events: none;
+}
+
+.product-card .product-image * {
+  pointer-events: none;
+}
+
+.product-card .product-meta * {
+  pointer-events: auto;
+}
+
+.product-card {
+  cursor: pointer;
 }
