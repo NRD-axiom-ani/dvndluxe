@@ -11,9 +11,10 @@ export async function generateStaticParams() {
 export default async function ProductPage({
   params,
 }: {
-  params: { handle: string };
+  params: Promise<{ handle: string }>;
 }) {
-  const product = await getProductByHandle(params.handle);
+  const { handle } = await params;
+  const product = await getProductByHandle(handle);
   if (!product) return notFound();
 
   const images = product.images.edges.map((e: any) => e.node);
