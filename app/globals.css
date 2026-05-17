@@ -79,7 +79,7 @@ body {
   font-size: var(--text-base);
   line-height: 1.6;
   overflow-x: hidden;
-  cursor: auto;
+  cursor: none;
 }
 
 img,
@@ -91,14 +91,22 @@ svg {
 a {
   text-decoration: none;
   color: inherit;
+  cursor: none;
 }
 
 button {
-  cursor: pointer;
+  cursor: none;
   background: none;
   border: none;
   font: inherit;
   color: inherit;
+}
+
+input,
+textarea,
+select,
+[role="button"] {
+  cursor: none;
 }
 
 ::selection {
@@ -559,11 +567,16 @@ nav.scrolled {
 }
 
 .product-card {
+  display: block;
+  position: relative;
+  cursor: none;
+}
+
+.product-card article {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  position: relative;
-  cursor: pointer;
+  height: 100%;
 }
 
 .product-image {
@@ -811,7 +824,7 @@ footer {
   right: var(--space-8);
   font-size: var(--text-xl);
   color: var(--color-text-muted);
-  cursor: pointer;
+  cursor: none;
   padding: var(--space-2);
   background: none;
   border: none;
@@ -939,7 +952,12 @@ footer {
     cursor: auto;
   }
 
-  button {
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role="button"] {
     cursor: pointer;
   }
 }
@@ -1098,7 +1116,7 @@ footer {
   color: var(--color-text);
   border-radius: var(--radius-sm);
   transition: border-color var(--transition), color var(--transition), background var(--transition);
-  cursor: pointer;
+  cursor: none;
 }
 
 .variant-options button:hover,

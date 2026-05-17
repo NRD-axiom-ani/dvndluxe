@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 
 interface Product {
@@ -26,14 +27,14 @@ export default function HomeClient({ products }: { products: Product[] }) {
   const router = useRouter();
   const navRef = useRef<HTMLElement>(null);
   const heroImgRef = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const cursorTrailRef = useRef<HTMLDivElement[]>([]);
 
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
+
     const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 60);
     window.addEventListener("scroll", onScroll, { passive: true });
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -43,51 +44,9 @@ export default function HomeClient({ products }: { products: Product[] }) {
         heroImgRef.current.style.transform = `translateY(${window.scrollY * 0.15}px)`;
       }
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    const trails = cursorTrailRef.current;
-    if (!cursor) return;
-
-    let mouseX = 0;
-    let mouseY = 0;
-    const trailPositions = trails.map(() => ({ x: 0, y: 0 }));
-
-    const onMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      cursor.style.left = `${mouseX}px`;
-      cursor.style.top = `${mouseY}px`;
-    };
-
-    let frame: number;
-    const animateTrails = () => {
-      trails.forEach((trail, i) => {
-        const prev = i === 0 ? { x: mouseX, y: mouseY } : trailPositions[i - 1];
-        trailPositions[i].x += (prev.x - trailPositions[i].x) * 0.35;
-        trailPositions[i].y += (prev.y - trailPositions[i].y) * 0.35;
-
-        if (trail) {
-          trail.style.left = `${trailPositions[i].x}px`;
-          trail.style.top = `${trailPositions[i].y}px`;
-          trail.style.opacity = `${0.4 - i * 0.1}`;
-          trail.style.transform = `translate(-50%, -50%) scale(${1 - i * 0.15})`;
-        }
-      });
-
-      frame = requestAnimationFrame(animateTrails);
-    };
-
-    window.addEventListener("mousemove", onMove);
-    frame = requestAnimationFrame(animateTrails);
-
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(frame);
-    };
   }, []);
 
   useEffect(() => {
@@ -107,7 +66,9 @@ export default function HomeClient({ products }: { products: Product[] }) {
             .split("")
             .map(
               (ch, ci) =>
-                `<span class="split-char" style="animation-delay:${0.4 + li * 0.18 + ci * 0.045}s">${ch === " " ? "&nbsp;" : ch}</span>`
+                `<span class="split-char" style="animation-delay:${0.4 + li * 0.18 + ci * 0.045}s">${
+                  ch === " " ? "&nbsp;" : ch
+                }</span>`
             )
             .join("")}</span>`
       )
@@ -136,12 +97,6 @@ export default function HomeClient({ products }: { products: Product[] }) {
     return () => observer.disconnect();
   }, []);
 
-  async function handleAddToCart(variantId: string) {
-    const { createCheckout } = await import("@/lib/shopify");
-    const url = await createCheckout(variantId);
-    if (url) window.open(url, "_blank");
-  }
-
   function openMobile() {
     document.getElementById("mobileMenu")?.classList.add("open");
     document.body.style.overflow = "hidden";
@@ -154,18 +109,6 @@ export default function HomeClient({ products }: { products: Product[] }) {
 
   return (
     <>
-      <div ref={cursorRef} className="cursor-dot" aria-hidden="true" />
-      {[0, 1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="cursor-trail"
-          ref={(el) => {
-            if (el) cursorTrailRef.current[i] = el;
-          }}
-          aria-hidden="true"
-        />
-      ))}
-
       <div
         className="mobile-menu"
         id="mobileMenu"
@@ -176,8 +119,12 @@ export default function HomeClient({ products }: { products: Product[] }) {
         <button className="mobile-close" aria-label="Close menu" onClick={closeMobile}>
           ✕
         </button>
-        <a href="#collection" onClick={closeMobile}>Collection</a>
-        <a href="#philosophy" onClick={closeMobile}>Philosophy</a>
+        <a href="#collection" onClick={closeMobile}>
+          Collection
+        </a>
+        <a href="#philosophy" onClick={closeMobile}>
+          Philosophy
+        </a>
         <a href="#">Lookbook</a>
         <a href="#">Contact</a>
       </div>
@@ -186,16 +133,20 @@ export default function HomeClient({ products }: { products: Product[] }) {
         <a href="#" className="nav-logo" aria-label="DVND home">
           DVND<span>.</span>
         </a>
+
         <ul className="nav-links" role="list">
           <li><a href="#collection">Collection</a></li>
           <li><a href="#philosophy">Philosophy</a></li>
           <li><a href="#">Lookbook</a></li>
           <li><a href="#">Contact</a></li>
         </ul>
+
         <div className="nav-actions">
           <a href="#collection" className="nav-cta">Shop Now</a>
           <button className="hamburger" aria-label="Open menu" onClick={openMobile}>
-            <span></span><span></span><span></span>
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
         </div>
       </nav>
@@ -219,14 +170,28 @@ export default function HomeClient({ products }: { products: Product[] }) {
           <div className="hero-content">
             <p className="hero-eyebrow">SS 2026 — Drop One</p>
             <h1 className="hero-title" id="hero-split" aria-label="Two Forces. One Label.">
-              Two<br /><em>Forces.</em><br />One Label.
+              Two
+              <br />
+              <em>Forces.</em>
+              <br />
+              One Label.
             </h1>
             <div className="hero-sub">
-              <p className="hero-tagline">Premium dark luxury streetwear — born from duality</p>
+              <p className="hero-tagline">
+                Premium dark luxury streetwear — born from duality
+              </p>
               <div className="hero-divider" aria-hidden="true"></div>
               <a href="#collection" className="hero-cta">
                 Explore Collection
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden="true"
+                >
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
               </a>
@@ -257,7 +222,9 @@ export default function HomeClient({ products }: { products: Product[] }) {
               "Dark Luxury",
               "Born From Duality",
             ].map((t, i) => (
-              <span className="marquee-item" key={i}>{t}</span>
+              <span className="marquee-item" key={i}>
+                {t}
+              </span>
             ))}
           </div>
         </div>
@@ -267,10 +234,14 @@ export default function HomeClient({ products }: { products: Product[] }) {
             <div className="philosophy-text">
               <p className="section-label reveal">The Philosophy</p>
               <h2 className="section-heading reveal reveal-delay-1" id="philosophy-heading">
-                Not for<br /><em>everyone.</em>
+                Not for
+                <br />
+                <em>everyone.</em>
               </h2>
               <p className="philosophy-body reveal reveal-delay-2">
-                DVND was born from a single truth — that duality is not contradiction. Darkness and refinement coexist. Street and luxury are not opposites. We build for those who carry both forces without apology.
+                DVND was born from a single truth — that duality is not contradiction.
+                Darkness and refinement coexist. Street and luxury are not opposites. We
+                build for those who carry both forces without apology.
               </p>
               <blockquote className="philosophy-quote reveal reveal-delay-3">
                 &ldquo;Silence is a fabric. We wear it well.&rdquo;
@@ -301,7 +272,14 @@ export default function HomeClient({ products }: { products: Product[] }) {
             </div>
             <a href="#" className="view-all reveal">
               View All
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </a>
@@ -312,56 +290,39 @@ export default function HomeClient({ products }: { products: Product[] }) {
               products.map((product, i) => {
                 const img = product.images.edges[0]?.node;
                 const price = parseFloat(product.priceRange.minVariantPrice.amount);
-                const variant = product.variants.edges[0]?.node;
 
                 return (
-                  <article
+                  <Link
                     key={product.id}
+                    href={`/products/${product.handle}`}
                     className={`product-card reveal${i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : ""}`}
+                    aria-label={`Open ${product.title}`}
                   >
-                    <div className="product-image">
-                      {img && (
-                        <Image
-                          src={img.url}
-                          alt={img.altText || product.title}
-                          fill
-                          sizes="(max-width: 580px) 50vw, (max-width: 900px) 50vw, 33vw"
-                          style={{ objectFit: "cover", objectPosition: "center top" }}
-                        />
-                      )}
-                      {i === 0 && <span className="product-tag">New</span>}
-                    </div>
-
-                    <div className="product-meta">
-                      <h3 className="product-name">{product.title}</h3>
-                      <p className="product-sub">
-                        {product.description?.slice(0, 40) || "Premium Drop"}
-                      </p>
-                      <p className="product-price">
-                        ₹{Math.round(price).toLocaleString("en-IN")}
-                      </p>
-
-                      <div style={{ display: "flex", gap: "12px", marginTop: "12px", flexWrap: "wrap" }}>
-                        <button
-                          className="add-to-cart"
-                          type="button"
-                          onClick={() => router.push(`/products/${product.handle}`)}
-                        >
-                          View Product
-                        </button>
-
-                        {variant && (
-                          <button
-                            className="add-to-cart"
-                            type="button"
-                            onClick={() => handleAddToCart(variant.id)}
-                          >
-                            Add to Cart
-                          </button>
+                    <article>
+                      <div className="product-image">
+                        {img && (
+                          <Image
+                            src={img.url}
+                            alt={img.altText || product.title}
+                            fill
+                            sizes="(max-width: 580px) 50vw, (max-width: 900px) 50vw, 33vw"
+                            style={{ objectFit: "cover", objectPosition: "center top" }}
+                          />
                         )}
+                        {i === 0 && <span className="product-tag">New</span>}
                       </div>
-                    </div>
-                  </article>
+
+                      <div className="product-meta">
+                        <h3 className="product-name">{product.title}</h3>
+                        <p className="product-sub">
+                          {product.description?.slice(0, 40) || "Premium Drop"}
+                        </p>
+                        <p className="product-price">
+                          ₹{Math.round(price).toLocaleString("en-IN")}
+                        </p>
+                      </div>
+                    </article>
+                  </Link>
                 );
               })
             ) : (
@@ -376,12 +337,17 @@ export default function HomeClient({ products }: { products: Product[] }) {
               DVND Manifesto
             </p>
             <blockquote className="manifesto-text reveal reveal-delay-1">
-              We don&apos;t follow trends.<br />
-              We don&apos;t chase <em>attention.</em><br />
-              We build for the unbothered —<br />
+              We don&apos;t follow trends.
+              <br />
+              We don&apos;t chase <em>attention.</em>
+              <br />
+              We build for the unbothered —
+              <br />
               <strong>for those who wear the void.</strong>
             </blockquote>
-            <p className="manifesto-sub reveal reveal-delay-2">DVND — Two Forces. One Label.</p>
+            <p className="manifesto-sub reveal reveal-delay-2">
+              DVND — Two Forces. One Label.
+            </p>
           </div>
         </div>
       </main>
