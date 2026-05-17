@@ -4,26 +4,24 @@ import { useEffect, useRef } from "react";
 
 export default function GlobalCursor() {
   const dotRef = useRef<HTMLDivElement | null>(null);
-  const trailRef = useRef<HTMLDivElement | null>(null);
+  const trailsRef = useRef<HTMLDivElement[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const finePointer = window.matchMedia("(pointer: fine)").matches;
-    if (!finePointer) return;
+    if (!finePointer || window.innerWidth <= 900) return;
 
     const body = document.body;
     const dot = dotRef.current;
-    const trail = trailRef.current;
-    if (!dot || !trail) return;
+    const trails = trailsRef.current.filter(Boolean);
+    if (!dot || trails.length === 0) return;
 
     body.classList.add("has-custom-cursor");
 
     let mouseX = window.innerWidth / 2;
     let mouseY = window.innerHeight / 2;
-    let trailX = mouseX;
-    let trailY = mouseY;
-    let raf = 0;
+    const positions = trails.map(() => ({ x: mouseX, y: mouseY }));
 
     const move = (e: MouseEvent) => {
       mouseX = e.clientX;
@@ -31,10 +29,17 @@ export default function GlobalCursor() {
       dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
     };
 
+    let raf = 0;
     const tick = () => {
-      trailX += (mouseX - trailX) * 0.18;
-      trailY += (mouseY - trailY) * 0.18;
-      trail.style.transform = `translate(${trailX}px, ${trailY}px) translate(-50%, -50%)`;
+      trails.forEach((trail, i) => {
+        const prev = i === 0 ? { x: mouseX, y: mouseY } : positions[i - 1];
+        positions[i].x += (prev.x - positions[i].x) * 0.25;
+        positions[i].y += (prev.y - positions[i].y) * 0.25;
+
+        trail.style.transform = `translate(${positions[i].x}px, ${positions[i].y}px) translate(-50%, -50%) scale(${1 - i * 0.15})`;
+        trail.style.opacity = `${0.6 - i * 0.12}`;
+      });
+
       raf = requestAnimationFrame(tick);
     };
 
@@ -78,8 +83,17 @@ export default function GlobalCursor() {
 
   return (
     <>
-      <div ref={trailRef} className="cursor-trail" aria-hidden="true" />
       <div ref={dotRef} className="cursor-dot" aria-hidden="true" />
+      {[0, 1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="cursor-trail"
+          ref={(el) => {
+            if (el) trailsRef.current[i] = el;
+          }}
+          aria-hidden="true"
+        />
+      ))}
     </>
   );
 }
