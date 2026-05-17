@@ -16,6 +16,7 @@ interface CartContextType {
   cart: CartItem[];
   cartId: string | null;
   addToCart: (item: Omit<CartItem, "id">) => Promise<void>;
+  addItem: (item: { variantId: string; quantity: number; product: { title: string; handle: string; image: string; price: number; variant: string } }) => Promise<void>;
   removeFromCart: (lineId: string) => Promise<void>;
   updateQuantity: (lineId: string, quantity: number) => Promise<void>;
   getCartTotal: () => number;
@@ -91,6 +92,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const addItem = async (item: { 
+    variantId: string; 
+    quantity: number; 
+    product: { title: string; handle: string; image: string; price: number; variant: string } 
+  }) => {
+    await addToCart({
+      variantId: item.variantId,
+      title: item.product.title,
+      price: item.product.price.toString(),
+      quantity: item.quantity,
+      image: item.product.image,
+      handle: item.product.handle,
+    });
+  };
+
   const removeFromCart = async (lineId: string) => {
     if (!cartId) return;
     setIsLoading(true);
@@ -139,6 +155,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         cart,
         cartId,
         addToCart,
+        addItem,
         removeFromCart,
         updateQuantity,
         getCartTotal,
