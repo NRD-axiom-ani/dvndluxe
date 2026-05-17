@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import GlobalCursor from "./components/GlobalCursor";
+import { CartProvider } from "./context/CartContext";
+
 
 export const metadata: Metadata = {
   title: "DVND — Two Forces. One Label.",
   description: "DVND. Premium dark luxury streetwear. Two forces. One label.",
 };
+
 
 export default function RootLayout({
   children,
@@ -21,8 +24,10 @@ export default function RootLayout({
         <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <GlobalCursor />
-        {children}
+        <CartProvider>
+          <GlobalCursor />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );

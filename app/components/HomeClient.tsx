@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import CartButton from "./CartButton";
+import CartDrawer from "./CartDrawer";
 
 interface Product {
   id: string;
@@ -27,6 +29,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
   const router = useRouter();
   const navRef = useRef<HTMLElement>(null);
   const heroImgRef = useRef<HTMLDivElement>(null);
+  const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -142,6 +145,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
         </ul>
 
         <div className="nav-actions">
+          <CartButton onClick={() => setCartOpen(true)} />
           <a href="#collection" className="nav-cta">Shop Now</a>
           <button className="hamburger" aria-label="Open menu" onClick={openMobile}>
             <span></span>
@@ -288,40 +292,40 @@ export default function HomeClient({ products }: { products: Product[] }) {
           <div className="product-grid">
             {products.length > 0 ? (
               products.map((product, i) => {
-               const img = product.images.edges[0]?.node;
-const price = parseFloat(product.priceRange.minVariantPrice.amount);
+                const img = product.images.edges[0]?.node;
+                const price = parseFloat(product.priceRange.minVariantPrice.amount);
 
-return (
-  <Link
-    key={product.id}
-    href={`/products/${product.handle}`}
-    className={`product-card reveal${i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : ""}`}
-    aria-label={`Open ${product.title}`}
-  >
-    <article>
-      <div className="product-image">
-        {img && (
-          <Image
-            src={img.url}
-            alt={img.altText || product.title}
-            fill
-            sizes="(max-width: 580px) 50vw, (max-width: 900px) 50vw, 33vw"
-            style={{ objectFit: "cover", objectPosition: "center top" }}
-          />
-        )}
-        {i === 0 && <span className="product-tag">New</span>}
-      </div>
+                return (
+                  <Link
+                    key={product.id}
+                    href={`/products/${product.handle}`}
+                    className={`product-card reveal${i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : ""}`}
+                    aria-label={`Open ${product.title}`}
+                  >
+                    <article>
+                      <div className="product-image">
+                        {img && (
+                          <Image
+                            src={img.url}
+                            alt={img.altText || product.title}
+                            fill
+                            sizes="(max-width: 580px) 50vw, (max-width: 900px) 50vw, 33vw"
+                            style={{ objectFit: "cover", objectPosition: "center top" }}
+                          />
+                        )}
+                        {i === 0 && <span className="product-tag">New</span>}
+                      </div>
 
-      <div className="product-meta">
-        <h3 className="product-name">{product.title}</h3>
-        <p className="product-sub">
-          {product.description?.slice(0, 40) || "Premium Drop"}
-        </p>
-        <p className="product-price">${price.toFixed(2)}</p>
-      </div>
-    </article>
-  </Link>
-);
+                      <div className="product-meta">
+                        <h3 className="product-name">{product.title}</h3>
+                        <p className="product-sub">
+                          {product.description?.slice(0, 40) || "Premium Drop"}
+                        </p>
+                        <p className="product-price">${price.toFixed(2)}</p>
+                      </div>
+                    </article>
+                  </Link>
+                );
               })
             ) : (
               <p className="no-products">No Shopify products found.</p>
@@ -401,6 +405,8 @@ return (
           <p className="footer-copy">dvndluxe.com</p>
         </div>
       </footer>
+
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }
