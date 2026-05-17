@@ -583,3 +583,8 @@ footer { border-top: 1px solid var(--color-border); background: var(--color-surf
 .product-card {
   cursor: pointer;
 }
+.no-products {
+  padding: 24px 0;
+  color: #9a9a9a;
+  font-size: 14px;
+}

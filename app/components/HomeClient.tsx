@@ -365,60 +365,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
                 );
               })
             ) : (
-              <>
-                <article className="product-card reveal">
-                  <div className="product-image">
-                    <Image
-                      src="/tee-front.jpg"
-                      alt="Void Oversized Tee"
-                      fill
-                      sizes="(max-width: 580px) 50vw, 33vw"
-                      style={{ objectFit: "cover", objectPosition: "center top" }}
-                    />
-                    <span className="product-tag">New</span>
-                  </div>
-                  <div className="product-meta">
-                    <h3 className="product-name">Void Oversized Tee</h3>
-                    <p className="product-sub">Matte Black — 400 GSM</p>
-                    <p className="product-price">₹3,499</p>
-                  </div>
-                </article>
-
-                <article className="product-card reveal reveal-delay-1">
-                  <div className="product-image">
-                    <Image
-                      src="/tee-back.jpg"
-                      alt="Duality Tee"
-                      fill
-                      sizes="(max-width: 580px) 50vw, 33vw"
-                      style={{ objectFit: "cover", objectPosition: "center top" }}
-                    />
-                  </div>
-                  <div className="product-meta">
-                    <h3 className="product-name">Duality Tee</h3>
-                    <p className="product-sub">The Duality Back Print</p>
-                    <p className="product-price">₹3,799</p>
-                  </div>
-                </article>
-
-                <article className="product-card reveal reveal-delay-2">
-                  <div className="product-image">
-                    <Image
-                      src="/model-side.jpg"
-                      alt="Force Profile Tee"
-                      fill
-                      sizes="(max-width: 580px) 50vw, 33vw"
-                      style={{ objectFit: "cover", objectPosition: "center top" }}
-                    />
-                    <span className="product-tag">Limited</span>
-                  </div>
-                  <div className="product-meta">
-                    <h3 className="product-name">Force Profile Tee</h3>
-                    <p className="product-sub">Onyx — 400 GSM</p>
-                    <p className="product-price">₹3,999</p>
-                  </div>
-                </article>
-              </>
+              <p className="no-products">No Shopify products found.</p>
             )}
           </div>
         </section>
