@@ -49,24 +49,40 @@ export default function ProductClient({ product }: { product: Product }) {
     product.variants.edges[0]?.node
   );
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [adding, setAdding] = useState(false);
 
   const images = product.images.edges.map((e) => e.node);
   const variants = product.variants.edges.map((e) => e.node);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedVariant) return;
+    
+    setAdding(true);
+    try {
+      await addItem({
+        variantId: selectedVariant.id,
+        quantity: 1,
+        product: {
+          title: product.title,
+          handle: product.handle,
+          image: images[0]?.url || "",
+          price: parseFloat(selectedVariant.priceV2.amount),
+          variant: selectedVariant.title,
+        },
+      });
+      alert("Added to cart!");
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    } finally {
+      setAdding(false);
+    }
+  };
 
-    addItem({
-      variantId: selectedVariant.id,
-      quantity: 1,
-      product: {
-        title: product.title,
-        handle: product.handle,
-        image: images[0]?.url || "",
-        price: parseFloat(selectedVariant.priceV2.amount),
-        variant: selectedVariant.title,
-      },
-    });
+  const handleBuyNow = async () => {
+    await handleAddToCart();
+    setTimeout(() => {
+      window.location.href = "/checkout";
+    }, 500);
   };
 
   return (
@@ -80,6 +96,7 @@ export default function ProductClient({ product }: { product: Product }) {
       </nav>
 
       <div className="product-detail-grid">
+        {/* Gallery */}
         <div className="product-gallery">
           <div className="gallery-main">
             {images[currentImageIndex] && (
@@ -115,6 +132,7 @@ export default function ProductClient({ product }: { product: Product }) {
           )}
         </div>
 
+        {/* Product Info */}
         <div className="product-info">
           <h1 className="product-title">{product.title}</h1>
           <p className="product-price">
@@ -125,6 +143,7 @@ export default function ProductClient({ product }: { product: Product }) {
             <p>{product.description}</p>
           </div>
 
+          {/* Variants */}
           {variants.length > 1 && (
             <div className="product-variants">
               <label>Size / Variant:</label>
@@ -145,29 +164,26 @@ export default function ProductClient({ product }: { product: Product }) {
             </div>
           )}
 
+          {/* BUTTONS - YE ZAROOR DIKHNE CHAHIYE */}
           <div className="product-actions">
             <button
               className="btn-add-to-cart"
               onClick={handleAddToCart}
-              disabled={!selectedVariant?.availableForSale}
+              disabled={!selectedVariant?.availableForSale || adding}
             >
-              {selectedVariant?.availableForSale
-                ? "Add to Cart"
-                : "Out of Stock"}
+              {adding ? "Adding..." : selectedVariant?.availableForSale ? "Add to Cart" : "Out of Stock"}
             </button>
             
             <button
               className="btn-buy-now"
-              onClick={() => {
-                handleAddToCart();
-                window.location.href = "/checkout";
-              }}
-              disabled={!selectedVariant?.availableForSale}
+              onClick={handleBuyNow}
+              disabled={!selectedVariant?.availableForSale || adding}
             >
               Buy Now
             </button>
           </div>
 
+          {/* Meta */}
           <div className="product-meta">
             <p>
               <strong>SKU:</strong> {product.handle.toUpperCase()}
