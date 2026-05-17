@@ -317,9 +317,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
                         <p className="product-sub">
                           {product.description?.slice(0, 40) || "Premium Drop"}
                         </p>
-                        <p className="product-price">
-                          ₹{Math.round(price).toLocaleString("en-IN")}
-                        </p>
+                        <p className="product-price">${/* price variable */}</p>
                       </div>
                     </article>
                   </Link>
