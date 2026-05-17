@@ -58,3 +58,62 @@ export async function createCheckout(variantId: string): Promise<string | null> 
     return null;
   }
 }
+export async function getProductByHandle(handle: string) {
+  try {
+    const data = await shopifyFetch(`{
+      productByHandle(handle: "${handle}") {
+        id
+        title
+        description
+        handle
+        priceRange { minVariantPrice { amount currencyCode } }
+        images(first: 6) { edges { node { url altText } } }
+        variants(first: 10) {
+          edges {
+            node {
+              id
+              title
+              availableForSale
+              price { amount currencyCode }
+            }
+          }
+        }
+      }
+    }`);
+    return data?.data?.productByHandle ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function getCollections() {
+  try {
+    const data = await shopifyFetch(`{
+      collections(first: 10) {
+        edges {
+          node {
+            id
+            title
+            handle
+            image { url altText }
+            products(first: 10) {
+              edges {
+                node {
+                  id
+                  title
+                  handle
+                  priceRange { minVariantPrice { amount currencyCode } }
+                  images(first: 1) { edges { node { url altText } } }
+                  variants(first: 1) { edges { node { id availableForSale } } }
+                }
+              }
+            }
+          }
+        }
+      }
+    }`);
+    return data?.data?.collections?.edges?.map((e: any) => e.node) ?? [];
+  } catch {
+    return [];
+  }
+}
