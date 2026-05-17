@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getProducts } from "@/lib/shopify";
 import HomeClient from "@/app/components/HomeClient";
 

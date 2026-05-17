@@ -1,6 +1,8 @@
 "use client";
+
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Product {
   id: string;
@@ -9,7 +11,15 @@ interface Product {
   handle: string;
   priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
   images: { edges: { node: { url: string; altText: string } }[] };
-  variants: { edges: { node: { id: string; title: string; availableForSale: boolean } }[] };
+  variants: {
+    edges: {
+      node: {
+        id: string;
+        title: string;
+        availableForSale: boolean;
+      };
+    }[];
+  };
 }
 
 export default function HomeClient({ products }: { products: Product[] }) {
@@ -28,8 +38,9 @@ export default function HomeClient({ products }: { products: Product[] }) {
 
   useEffect(() => {
     const onScroll = () => {
-      if (heroImgRef.current)
+      if (heroImgRef.current) {
         heroImgRef.current.style.transform = `translateY(${window.scrollY * 0.15}px)`;
+      }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -39,18 +50,25 @@ export default function HomeClient({ products }: { products: Product[] }) {
     const cursor = cursorRef.current;
     const trails = cursorTrailRef.current;
     if (!cursor) return;
-    let mouseX = 0, mouseY = 0;
+
+    let mouseX = 0;
+    let mouseY = 0;
     const trailPositions = trails.map(() => ({ x: 0, y: 0 }));
+
     const onMove = (e: MouseEvent) => {
-      mouseX = e.clientX; mouseY = e.clientY;
-      cursor.style.left = `${mouseX}px`; cursor.style.top = `${mouseY}px`;
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursor.style.left = `${mouseX}px`;
+      cursor.style.top = `${mouseY}px`;
     };
+
     let frame: number;
     const animateTrails = () => {
       trails.forEach((trail, i) => {
         const prev = i === 0 ? { x: mouseX, y: mouseY } : trailPositions[i - 1];
         trailPositions[i].x += (prev.x - trailPositions[i].x) * 0.35;
         trailPositions[i].y += (prev.y - trailPositions[i].y) * 0.35;
+
         if (trail) {
           trail.style.left = `${trailPositions[i].x}px`;
           trail.style.top = `${trailPositions[i].y}px`;
@@ -58,10 +76,13 @@ export default function HomeClient({ products }: { products: Product[] }) {
           trail.style.transform = `translate(-50%, -50%) scale(${1 - i * 0.15})`;
         }
       });
+
       frame = requestAnimationFrame(animateTrails);
     };
+
     window.addEventListener("mousemove", onMove);
     frame = requestAnimationFrame(animateTrails);
+
     return () => {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(frame);
@@ -71,22 +92,23 @@ export default function HomeClient({ products }: { products: Product[] }) {
   useEffect(() => {
     const el = document.getElementById("hero-split");
     if (!el) return;
+
     const lines = [
       { text: "Two", italic: false },
       { text: "Forces.", italic: true },
       { text: "One Label.", italic: false },
     ];
+
     el.innerHTML = lines
-      .map((line, li) =>
-        `<span class="split-line${line.italic ? " split-italic" : ""}">${line.text
-          .split("")
-          .map(
-            (ch, ci) =>
-              `<span class="split-char" style="animation-delay:${
-                0.4 + li * 0.18 + ci * 0.045
-              }s">${ch === " " ? "&nbsp;" : ch}</span>`
-          )
-          .join("")}</span>`
+      .map(
+        (line, li) =>
+          `<span class="split-line${line.italic ? " split-italic" : ""}">${line.text
+            .split("")
+            .map(
+              (ch, ci) =>
+                `<span class="split-char" style="animation-delay:${0.4 + li * 0.18 + ci * 0.045}s">${ch === " " ? "&nbsp;" : ch}</span>`
+            )
+            .join("")}</span>`
       )
       .join("<br/>");
   }, []);
@@ -103,14 +125,18 @@ export default function HomeClient({ products }: { products: Product[] }) {
         }),
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
     );
+
     reveals.forEach((el) => observer.observe(el));
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       reveals.forEach((el) => el.classList.add("visible"));
+    }
+
     return () => observer.disconnect();
   }, []);
 
   async function handleAddToCart(variantId: string) {
-    const { createCheckout } = await import("../../lib/shopify");
+    const { createCheckout } = await import("@/lib/shopify");
     const url = await createCheckout(variantId);
     if (url) window.open(url, "_blank");
   }
@@ -119,6 +145,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
     document.getElementById("mobileMenu")?.classList.add("open");
     document.body.style.overflow = "hidden";
   }
+
   function closeMobile() {
     document.getElementById("mobileMenu")?.classList.remove("open");
     document.body.style.overflow = "";
@@ -131,21 +158,37 @@ export default function HomeClient({ products }: { products: Product[] }) {
         <div
           key={i}
           className="cursor-trail"
-          ref={(el) => { if (el) cursorTrailRef.current[i] = el; }}
+          ref={(el) => {
+            if (el) cursorTrailRef.current[i] = el;
+          }}
           aria-hidden="true"
         />
       ))}
 
-      <div className="mobile-menu" id="mobileMenu" role="dialog" aria-modal={true} aria-label="Navigation">
-        <button className="mobile-close" aria-label="Close menu" onClick={closeMobile}>✕</button>
-        <a href="#collection" onClick={closeMobile}>Collection</a>
-        <a href="#philosophy" onClick={closeMobile}>Philosophy</a>
+      <div
+        className="mobile-menu"
+        id="mobileMenu"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation"
+      >
+        <button className="mobile-close" aria-label="Close menu" onClick={closeMobile}>
+          ✕
+        </button>
+        <a href="#collection" onClick={closeMobile}>
+          Collection
+        </a>
+        <a href="#philosophy" onClick={closeMobile}>
+          Philosophy
+        </a>
         <a href="#">Lookbook</a>
         <a href="#">Contact</a>
       </div>
 
       <nav ref={navRef}>
-        <a href="#" className="nav-logo" aria-label="DVND home">DVND<span>.</span></a>
+        <a href="#" className="nav-logo" aria-label="DVND home">
+          DVND<span>.</span>
+        </a>
         <ul className="nav-links" role="list">
           <li><a href="#collection">Collection</a></li>
           <li><a href="#philosophy">Philosophy</a></li>
@@ -153,7 +196,9 @@ export default function HomeClient({ products }: { products: Product[] }) {
           <li><a href="#">Contact</a></li>
         </ul>
         <div className="nav-actions">
-          <a href="#collection" className="nav-cta">Shop Now</a>
+          <a href="#collection" className="nav-cta">
+            Shop Now
+          </a>
           <button className="hamburger" aria-label="Open menu" onClick={openMobile}>
             <span></span><span></span><span></span>
           </button>
@@ -161,7 +206,6 @@ export default function HomeClient({ products }: { products: Product[] }) {
       </nav>
 
       <main>
-        {/* HERO */}
         <section className="hero" aria-label="DVND hero">
           <div className="hero-parallax-wrap" aria-hidden="true">
             <div ref={heroImgRef} className="hero-parallax-img">
@@ -176,6 +220,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
               <div className="hero-overlay" />
             </div>
           </div>
+
           <div className="hero-content">
             <p className="hero-eyebrow">SS 2026 — Drop One</p>
             <h1 className="hero-title" id="hero-split" aria-label="Two Forces. One Label.">
@@ -192,25 +237,38 @@ export default function HomeClient({ products }: { products: Product[] }) {
               </a>
             </div>
           </div>
+
           <div className="hero-scroll" aria-hidden="true">
             <div className="scroll-line"></div>
             <span className="scroll-label">Scroll</span>
           </div>
         </section>
 
-        {/* MARQUEE */}
         <div className="marquee-section" aria-hidden="true">
           <div className="marquee-track">
             {[
-              "DVND Luxe","Two Forces","One Label","SS 2026","Premium Streetwear","Dark Luxury","Born From Duality",
-              "DVND Luxe","Two Forces","One Label","SS 2026","Premium Streetwear","Dark Luxury","Born From Duality",
+              "DVND Luxe",
+              "Two Forces",
+              "One Label",
+              "SS 2026",
+              "Premium Streetwear",
+              "Dark Luxury",
+              "Born From Duality",
+              "DVND Luxe",
+              "Two Forces",
+              "One Label",
+              "SS 2026",
+              "Premium Streetwear",
+              "Dark Luxury",
+              "Born From Duality",
             ].map((t, i) => (
-              <span className="marquee-item" key={i}>{t}</span>
+              <span className="marquee-item" key={i}>
+                {t}
+              </span>
             ))}
           </div>
         </div>
 
-        {/* PHILOSOPHY */}
         <section className="section" id="philosophy" aria-labelledby="philosophy-heading">
           <div className="philosophy">
             <div className="philosophy-text">
@@ -225,6 +283,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
                 &ldquo;Silence is a fabric. We wear it well.&rdquo;
               </blockquote>
             </div>
+
             <div className="philosophy-visual reveal reveal-delay-1" aria-label="DVND brand visual">
               <Image
                 src="/couple.jpg"
@@ -239,7 +298,6 @@ export default function HomeClient({ products }: { products: Product[] }) {
           </div>
         </section>
 
-        {/* COLLECTION */}
         <section className="section" id="collection" aria-labelledby="collection-heading">
           <div className="products-header">
             <div>
@@ -262,30 +320,42 @@ export default function HomeClient({ products }: { products: Product[] }) {
                 const img = product.images.edges[0]?.node;
                 const price = parseFloat(product.priceRange.minVariantPrice.amount);
                 const variant = product.variants.edges[0]?.node;
+
                 return (
-                  <article key={product.id} className={`product-card reveal${i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : ""}`}>
-                    <div className="product-image">
-                      {img && (
-                        <Image
-                          src={img.url}
-                          alt={img.altText || product.title}
-                          fill
-                          sizes="(max-width: 580px) 50vw, (max-width: 900px) 50vw, 33vw"
-                          style={{ objectFit: "cover", objectPosition: "center top" }}
-                        />
-                      )}
-                      {i === 0 && <span className="product-tag">New</span>}
-                    </div>
-                    <div className="product-meta">
-                      <h3 className="product-name">{product.title}</h3>
-                      <p className="product-sub">{product.description?.slice(0, 40) || "Premium Drop"}</p>
-                      <p className="product-price">₹{Math.round(price).toLocaleString("en-IN")}</p>
-                      {variant && (
-                        <button className="add-to-cart" onClick={() => handleAddToCart(variant.id)}>
-                          Add to Cart →
-                        </button>
-                      )}
-                    </div>
+                  <article
+                    key={product.id}
+                    className={`product-card reveal${i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : ""}`}
+                  >
+                    <Link href={`/products/${product.handle}`} className="product-link">
+                      <div className="product-image">
+                        {img && (
+                          <Image
+                            src={img.url}
+                            alt={img.altText || product.title}
+                            fill
+                            sizes="(max-width: 580px) 50vw, (max-width: 900px) 50vw, 33vw"
+                            style={{ objectFit: "cover", objectPosition: "center top" }}
+                          />
+                        )}
+                        {i === 0 && <span className="product-tag">New</span>}
+                      </div>
+
+                      <div className="product-meta">
+                        <h3 className="product-name">{product.title}</h3>
+                        <p className="product-sub">
+                          {product.description?.slice(0, 40) || "Premium Drop"}
+                        </p>
+                        <p className="product-price">
+                          ₹{Math.round(price).toLocaleString("en-IN")}
+                        </p>
+                      </div>
+                    </Link>
+
+                    {variant && (
+                      <button className="add-to-cart" onClick={() => handleAddToCart(variant.id)}>
+                        Add to Cart →
+                      </button>
+                    )}
                   </article>
                 );
               })
@@ -293,9 +363,13 @@ export default function HomeClient({ products }: { products: Product[] }) {
               <>
                 <article className="product-card reveal">
                   <div className="product-image">
-                    <Image src="/tee-front.jpg" alt="Void Oversized Tee" fill
+                    <Image
+                      src="/tee-front.jpg"
+                      alt="Void Oversized Tee"
+                      fill
                       sizes="(max-width: 580px) 50vw, 33vw"
-                      style={{ objectFit: "cover", objectPosition: "center top" }} />
+                      style={{ objectFit: "cover", objectPosition: "center top" }}
+                    />
                     <span className="product-tag">New</span>
                   </div>
                   <div className="product-meta">
@@ -304,11 +378,16 @@ export default function HomeClient({ products }: { products: Product[] }) {
                     <p className="product-price">₹3,499</p>
                   </div>
                 </article>
+
                 <article className="product-card reveal reveal-delay-1">
                   <div className="product-image">
-                    <Image src="/tee-back.jpg" alt="Duality Tee" fill
+                    <Image
+                      src="/tee-back.jpg"
+                      alt="Duality Tee"
+                      fill
                       sizes="(max-width: 580px) 50vw, 33vw"
-                      style={{ objectFit: "cover", objectPosition: "center top" }} />
+                      style={{ objectFit: "cover", objectPosition: "center top" }}
+                    />
                   </div>
                   <div className="product-meta">
                     <h3 className="product-name">Duality Tee</h3>
@@ -316,11 +395,16 @@ export default function HomeClient({ products }: { products: Product[] }) {
                     <p className="product-price">₹3,799</p>
                   </div>
                 </article>
+
                 <article className="product-card reveal reveal-delay-2">
                   <div className="product-image">
-                    <Image src="/model-side.jpg" alt="Force Profile Tee" fill
+                    <Image
+                      src="/model-side.jpg"
+                      alt="Force Profile Tee"
+                      fill
                       sizes="(max-width: 580px) 50vw, 33vw"
-                      style={{ objectFit: "cover", objectPosition: "center top" }} />
+                      style={{ objectFit: "cover", objectPosition: "center top" }}
+                    />
                     <span className="product-tag">Limited</span>
                   </div>
                   <div className="product-meta">
@@ -334,10 +418,11 @@ export default function HomeClient({ products }: { products: Product[] }) {
           </div>
         </section>
 
-        {/* MANIFESTO */}
         <div className="manifesto-section">
           <div className="manifesto-inner">
-            <p className="section-label reveal" style={{ textAlign: "center" }}>DVND Manifesto</p>
+            <p className="section-label reveal" style={{ textAlign: "center" }}>
+              DVND Manifesto
+            </p>
             <blockquote className="manifesto-text reveal reveal-delay-1">
               We don&apos;t follow trends.<br />
               We don&apos;t chase <em>attention.</em><br />
@@ -349,17 +434,21 @@ export default function HomeClient({ products }: { products: Product[] }) {
         </div>
       </main>
 
-      {/* FOOTER */}
       <footer>
         <div className="footer-inner">
           <div>
             <p className="footer-brand-name">DVND</p>
             <p className="footer-tagline">Two forces. One label.</p>
             <div className="footer-social">
-              <a href="#" className="social-link" target="_blank" rel="noopener noreferrer">Instagram</a>
-              <a href="#" className="social-link" target="_blank" rel="noopener noreferrer">Pinterest</a>
+              <a href="#" className="social-link" target="_blank" rel="noopener noreferrer">
+                Instagram
+              </a>
+              <a href="#" className="social-link" target="_blank" rel="noopener noreferrer">
+                Pinterest
+              </a>
             </div>
           </div>
+
           <div>
             <p className="footer-col-title">Shop</p>
             <ul className="footer-links">
@@ -369,6 +458,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
               <li><a href="#">Accessories</a></li>
             </ul>
           </div>
+
           <div>
             <p className="footer-col-title">Brand</p>
             <ul className="footer-links">
@@ -378,6 +468,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
               <li><a href="#">Press</a></li>
             </ul>
           </div>
+
           <div>
             <p className="footer-col-title">Help</p>
             <ul className="footer-links">
@@ -388,6 +479,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
             </ul>
           </div>
         </div>
+
         <div className="footer-bottom">
           <p className="footer-copy">© 2026 DVND. All rights reserved.</p>
           <p className="footer-copy">dvndluxe.com</p>
