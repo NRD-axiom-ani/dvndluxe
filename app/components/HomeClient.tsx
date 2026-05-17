@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 
 interface Product {
   id: string;
@@ -23,6 +23,7 @@ interface Product {
 }
 
 export default function HomeClient({ products }: { products: Product[] }) {
+  const router = useRouter();
   const navRef = useRef<HTMLElement>(null);
   const heroImgRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -175,12 +176,8 @@ export default function HomeClient({ products }: { products: Product[] }) {
         <button className="mobile-close" aria-label="Close menu" onClick={closeMobile}>
           ✕
         </button>
-        <a href="#collection" onClick={closeMobile}>
-          Collection
-        </a>
-        <a href="#philosophy" onClick={closeMobile}>
-          Philosophy
-        </a>
+        <a href="#collection" onClick={closeMobile}>Collection</a>
+        <a href="#philosophy" onClick={closeMobile}>Philosophy</a>
         <a href="#">Lookbook</a>
         <a href="#">Contact</a>
       </div>
@@ -196,9 +193,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
           <li><a href="#">Contact</a></li>
         </ul>
         <div className="nav-actions">
-          <a href="#collection" className="nav-cta">
-            Shop Now
-          </a>
+          <a href="#collection" className="nav-cta">Shop Now</a>
           <button className="hamburger" aria-label="Open menu" onClick={openMobile}>
             <span></span><span></span><span></span>
           </button>
@@ -262,9 +257,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
               "Dark Luxury",
               "Born From Duality",
             ].map((t, i) => (
-              <span className="marquee-item" key={i}>
-                {t}
-              </span>
+              <span className="marquee-item" key={i}>{t}</span>
             ))}
           </div>
         </div>
@@ -325,37 +318,43 @@ export default function HomeClient({ products }: { products: Product[] }) {
                   <article
                     key={product.id}
                     className={`product-card reveal${i > 0 ? ` reveal-delay-${Math.min(i, 3)}` : ""}`}
+                    onClick={() => router.push(`/products/${product.handle}`)}
+                    style={{ cursor: "pointer" }}
                   >
-                    <Link href={`/products/${product.handle}`} className="product-link">
-                      <div className="product-image">
-                        {img && (
-                          <Image
-                            src={img.url}
-                            alt={img.altText || product.title}
-                            fill
-                            sizes="(max-width: 580px) 50vw, (max-width: 900px) 50vw, 33vw"
-                            style={{ objectFit: "cover", objectPosition: "center top" }}
-                          />
-                        )}
-                        {i === 0 && <span className="product-tag">New</span>}
-                      </div>
+                    <div className="product-image">
+                      {img && (
+                        <Image
+                          src={img.url}
+                          alt={img.altText || product.title}
+                          fill
+                          sizes="(max-width: 580px) 50vw, (max-width: 900px) 50vw, 33vw"
+                          style={{ objectFit: "cover", objectPosition: "center top" }}
+                        />
+                      )}
+                      {i === 0 && <span className="product-tag">New</span>}
+                    </div>
 
-                      <div className="product-meta">
-                        <h3 className="product-name">{product.title}</h3>
-                        <p className="product-sub">
-                          {product.description?.slice(0, 40) || "Premium Drop"}
-                        </p>
-                        <p className="product-price">
-                          ₹{Math.round(price).toLocaleString("en-IN")}
-                        </p>
-                      </div>
-                    </Link>
+                    <div className="product-meta">
+                      <h3 className="product-name">{product.title}</h3>
+                      <p className="product-sub">
+                        {product.description?.slice(0, 40) || "Premium Drop"}
+                      </p>
+                      <p className="product-price">
+                        ₹{Math.round(price).toLocaleString("en-IN")}
+                      </p>
 
-                    {variant && (
-                      <button className="add-to-cart" onClick={() => handleAddToCart(variant.id)}>
-                        Add to Cart →
-                      </button>
-                    )}
+                      {variant && (
+                        <button
+                          className="add-to-cart"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(variant.id);
+                          }}
+                        >
+                          Add to Cart →
+                        </button>
+                      )}
+                    </div>
                   </article>
                 );
               })
