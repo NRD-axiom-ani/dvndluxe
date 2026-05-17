@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import GlobalCursor from "./components/GlobalCursor";
 
 export const metadata: Metadata = {
   title: "DVND — Two Forces. One Label.",
@@ -19,7 +20,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet" />
         <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500&display=swap" rel="stylesheet" />
       </head>
-      <body>{children}</body>
+      <body>
+        <GlobalCursor />
+        {children}
+      </body>
     </html>
   );
 }

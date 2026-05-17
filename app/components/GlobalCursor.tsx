@@ -3,65 +3,83 @@
 import { useEffect, useRef } from "react";
 
 export default function GlobalCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const trailRef = useRef<HTMLDivElement[]>([]);
+  const dotRef = useRef<HTMLDivElement | null>(null);
+  const trailRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const cursor = cursorRef.current;
-    const trails = trailRef.current;
-    if (!cursor || window.innerWidth <= 900) return;
+    if (typeof window === "undefined") return;
+
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
+    if (!finePointer) return;
+
+    const body = document.body;
+    const dot = dotRef.current;
+    const trail = trailRef.current;
+    if (!dot || !trail) return;
+
+    body.classList.add("has-custom-cursor");
 
     let mouseX = window.innerWidth / 2;
     let mouseY = window.innerHeight / 2;
-    const positions = trails.map(() => ({ x: mouseX, y: mouseY }));
+    let trailX = mouseX;
+    let trailY = mouseY;
+    let raf = 0;
 
-    const onMove = (e: MouseEvent) => {
+    const move = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      cursor.style.left = `${mouseX}px`;
-      cursor.style.top = `${mouseY}px`;
+      dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
     };
 
-    let frame = 0;
-    const animate = () => {
-      trails.forEach((trail, i) => {
-        const prev = i === 0 ? { x: mouseX, y: mouseY } : positions[i - 1];
-        positions[i].x += (prev.x - positions[i].x) * 0.35;
-        positions[i].y += (prev.y - positions[i].y) * 0.35;
+    const tick = () => {
+      trailX += (mouseX - trailX) * 0.18;
+      trailY += (mouseY - trailY) * 0.18;
+      trail.style.transform = `translate(${trailX}px, ${trailY}px) translate(-50%, -50%)`;
+      raf = requestAnimationFrame(tick);
+    };
 
-        if (trail) {
-          trail.style.left = `${positions[i].x}px`;
-          trail.style.top = `${positions[i].y}px`;
-          trail.style.opacity = `${0.42 - i * 0.09}`;
-          trail.style.transform = `translate(-50%, -50%) scale(${1 - i * 0.14})`;
-        }
+    const onEnterInteractive = () => body.classList.add("cursor-hover");
+    const onLeaveInteractive = () => body.classList.remove("cursor-hover");
+
+    const bindInteractiveEvents = () => {
+      const interactive = document.querySelectorAll(
+        'a, button, input, textarea, select, [role="button"], .product-card'
+      );
+
+      interactive.forEach((el) => {
+        el.addEventListener("mouseenter", onEnterInteractive);
+        el.addEventListener("mouseleave", onLeaveInteractive);
       });
 
-      frame = requestAnimationFrame(animate);
+      return () => {
+        interactive.forEach((el) => {
+          el.removeEventListener("mouseenter", onEnterInteractive);
+          el.removeEventListener("mouseleave", onLeaveInteractive);
+        });
+      };
     };
 
-    window.addEventListener("mousemove", onMove);
-    frame = requestAnimationFrame(animate);
+    const unbind = bindInteractiveEvents();
+
+    window.addEventListener("mousemove", move, { passive: true });
+    window.addEventListener("mousedown", onEnterInteractive);
+    window.addEventListener("mouseup", onLeaveInteractive);
+    raf = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(frame);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mousedown", onEnterInteractive);
+      window.removeEventListener("mouseup", onLeaveInteractive);
+      unbind();
+      body.classList.remove("has-custom-cursor", "cursor-hover");
     };
   }, []);
 
   return (
     <>
-      <div ref={cursorRef} className="cursor-dot" aria-hidden="true" />
-      {[0, 1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="cursor-trail"
-          ref={(el) => {
-            if (el) trailRef.current[i] = el;
-          }}
-          aria-hidden="true"
-        />
-      ))}
+      <div ref={trailRef} className="cursor-trail" aria-hidden="true" />
+      <div ref={dotRef} className="cursor-dot" aria-hidden="true" />
     </>
   );
 }
